@@ -46,7 +46,7 @@ export class ChessGame {
         }
 
         //check if move is valid
-        const isLegal = this.getLegalMoves(fromRow, fromCol).some(
+        const isLegal = this.getLegalMoves(fromRow, fromCol, this.currentPlayer.color).some(
             ([row, col]) => row === toRow && col === toCol
         )
 
@@ -70,18 +70,10 @@ export class ChessGame {
         //move the piece
         this.board.movePiece(fromRow, fromCol, toRow, toCol)
         
-        //check for check
-        const enemyColor = this.currentPlayer.color === "white" ? "black" : "white";
-        const checkStatus = this.isInCheck(this, enemyColor)
-        //check for checkmate
-        const legalMoves = this.getAllLegalMoves(this, enemyColor);
-        const mateStatus = checkStatus && legalMoves.length == 0 ? true : false;
-        
-        this.moveHistory.push(new Move(movingPiece, fromRow, fromCol, toRow, toCol, capturedPiece, checkStatus, mateStatus, disambiguation))
         
         //check for promotion
         const isPromotion = movingPiece instanceof Pawn &&((movingPiece.color === "white" && toRow === 0) || (movingPiece.color === "black" && toRow === 7));
-
+        
         //check for castling
         const isCastling = movingPiece instanceof King && Math.abs(toCol - fromCol) === 2;
         
@@ -90,7 +82,7 @@ export class ChessGame {
             const square = this.board.getSquare(toRow, toCol);
             square.piece = new Queen(movingPiece.color);
         }
-
+        
         //If its castling move the rook
         if (isCastling) {
             if (toCol > fromCol) {
@@ -101,7 +93,16 @@ export class ChessGame {
                 this.board.movePiece(fromRow, 0, toRow, 3);
             }
         }
-
+        
+        //check for check
+        const enemyColor = this.currentPlayer.color === "white" ? "black" : "white";
+        const checkStatus = this.isInCheck(this, enemyColor)
+        //check for checkmate
+        const legalMoves = this.getAllLegalMoves(this, enemyColor);
+        const mateStatus = (checkStatus && legalMoves.length == 0)
+        console.log(mateStatus)
+        console.log(legalMoves)
+        this.moveHistory.push(new Move(movingPiece, fromRow, fromCol, toRow, toCol, capturedPiece, checkStatus, mateStatus, disambiguation))
 
         this.switchTurn()
         
@@ -138,7 +139,7 @@ export class ChessGame {
         }
     }
 
-    getLegalMoves(row, col) {
+    getLegalMoves(row, col, color) {
         const square = this.board.getSquare(row, col)
 
         if (square?.piece === null) {
@@ -150,17 +151,17 @@ export class ChessGame {
         const possibleMoves = piece.getPossibleMoves(this, row, col)
         
 
-        return this.filterLegalMoves(row, col, possibleMoves)
+        return this.filterLegalMoves(row, col, possibleMoves, color)
     }   
 
-    filterLegalMoves(row, col, possibleMoves) {
+    filterLegalMoves(row, col, possibleMoves, color) {
         
         const legalMoves = possibleMoves.filter(([newRow, newCol]) => {
             const dummyGame = this.copy()
 
             dummyGame.board.movePiece(row, col, newRow, newCol)
 
-            return !this.isInCheck(dummyGame, this.currentPlayer.color)
+            return !this.isInCheck(dummyGame, color)
         })
         return legalMoves
     }
@@ -188,7 +189,6 @@ export class ChessGame {
     switchTurn(){
 
         this.currentPlayer = this.currentPlayer  === this.black ? this.white : this.black
-        console.log(this.currentPlayer)
     }
 
     canSelectPiece(row, col) {
@@ -200,6 +200,7 @@ export class ChessGame {
     checkGameEnd() {
         const color = this.currentPlayer.color;
         const legalMoves = this.getAllLegalMoves(this, color);
+        console.log("in check game end", legalMoves)
 
         if (this.checkForRepetition()){
             this.result = "threefold repetition";
@@ -258,6 +259,7 @@ export class ChessGame {
     }
 
     getAllLegalMoves(game, color) {
+        console.log(game)
         const allLegalMoves = [];
         const chessBoard = game.board;
         for (let row = 0; row < 8; row++) {
@@ -268,7 +270,7 @@ export class ChessGame {
 
                     const possibleMoves = square.piece.getPossibleMoves(game, row, col);
 
-                    const legalMoves = this.filterLegalMoves(row, col, possibleMoves);
+                    const legalMoves = this.filterLegalMoves(row, col, possibleMoves, color);
 
                     allLegalMoves.push(...legalMoves);
                 }
@@ -574,7 +576,7 @@ export class ChessGame {
                 const otherPiece = game.board.getSquare(row, col).piece;
                 
                 if (otherPiece !== null && otherPiece.type === piece.type && otherPiece.color === piece.color && (row != fromRow || col != fromCol)){
-                    const legalMovesOfOtherPiece = this.getLegalMoves(row, col);
+                    const legalMovesOfOtherPiece = this.getLegalMoves(row, col, otherPiece.color);
                     
                     const canReach = legalMovesOfOtherPiece.some(([r, c]) => r === toRow && c === toCol)
 

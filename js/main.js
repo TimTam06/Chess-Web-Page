@@ -177,7 +177,7 @@ function renderLegalMoves() {
 
     if (clickedSquare !== null){
 
-        for (const move of game.getLegalMoves(clickedSquare[0], clickedSquare[1])){
+        for (const move of game.getLegalMoves(clickedSquare[0], clickedSquare[1], game.currentPlayer.color)){
             const squareElement = getSquareElement(move[0], move[1])
             if (game.board.getSquare(move[0], move[1]).piece !== null) {
                 squareElement.classList.add("attacked")
