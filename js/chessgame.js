@@ -204,7 +204,7 @@ export class ChessGame {
 
         if (this.checkForRepetition()){
             this.result = "threefold repetition";
-            this.winner = null;
+            this.winner = "draw";
             this.gameOver = true;
             console.log("THREEFOLD REPETITION");
             return true;
@@ -213,7 +213,7 @@ export class ChessGame {
         // Insufficient material
         if (this.isInsufficientMaterial()) {
             this.result = "insufficient material";
-            this.winner = null;
+            this.winner = "draw";
             this.gameOver = true;
 
             console.log("DRAW - INSUFFICIENT MATERIAL");
@@ -233,7 +233,7 @@ export class ChessGame {
             console.log(`CHECKMATE! ${this.winner} wins!`);
         } else {
             this.result = "stalemate";
-            this.winner = null;
+            this.winner = "draw";
 
             console.log("STALEMATE!");
         }
@@ -530,7 +530,7 @@ export class ChessGame {
             return true;
         }
 
-        // Any pawn, rook or queen means there is potentially enough material
+        
         if (
             nonKings.some(({ piece }) =>
                 piece instanceof Pawn ||
@@ -555,13 +555,7 @@ export class ChessGame {
             nonKings.length === 2 &&
             nonKings.every(({ piece }) => piece instanceof Bishop)
         ) {
-            const bishop1 = nonKings[0];
-            const bishop2 = nonKings[1];
-
-            const color1 = (bishop1.row + bishop1.col) % 2;
-            const color2 = (bishop2.row + bishop2.col) % 2;
-
-            return color1 === color2;
+            return true;
         }
 
         return false;

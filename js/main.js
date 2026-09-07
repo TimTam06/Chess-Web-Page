@@ -125,6 +125,7 @@ function newGame() {
     renderTurn()
     renderSelectedSquare()
     renderLegalMoves()
+    removeGameEnd()
 }
 
 function renderMoveHistory() {
@@ -206,6 +207,32 @@ function renderGameEnd(){
 
     const gameEndScreen = document.createElement("div")
     gameEndScreen.classList.add("game-end-screen")
-
     board.appendChild(gameEndScreen)
+
+    const whoWins = document.createElement("h3")
+    whoWins.classList.add(game.winner)
+    gameEndScreen.appendChild(whoWins)
+
+    if(game.winner == "white"){
+        whoWins.innerHTML = "White Wins"
+    }
+
+    else if (game.winner == "black"){
+        whoWins.innerHTML = "Black Wins"
+    }
+
+    else {
+        whoWins.innerHTML = "Draw"
+    }
+
+    const howEndGame = document.createElement("p")
+
+    gameEndScreen.appendChild(howEndGame)
+
+    howEndGame.innerHTML = "by " + game.result
+
+}
+
+function removeGameEnd(){
+    document.querySelector(".game-end-screen").remove()
 }
