@@ -73,6 +73,10 @@ function handleSquareClick(event) {
     renderTurn()
     renderSelectedSquare()
     renderLegalMoves()
+
+    if (game.gameOver == true){
+        renderGameEnd()
+    }
 }
 
 
@@ -197,3 +201,11 @@ function renderSelectedSquare() {
     }
 }
 
+function renderGameEnd(){
+    const board = document.getElementById("board");
+
+    const gameEndScreen = document.createElement("div")
+    gameEndScreen.classList.add("game-end-screen")
+
+    board.appendChild(gameEndScreen)
+}

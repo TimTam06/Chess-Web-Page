@@ -1,6 +1,6 @@
 body {
     margin: 0;
-    min-height: 100vh;
+    height: 100vh;
 
     display: flex;
     justify-content: center;
@@ -17,13 +17,6 @@ body {
     text-align: center;
 }
 
-.game-page h1 {
-    color: white;
-    margin-top: -25px;
-    margin-bottom: 60px;
-}
-
-
 
 .game-container {
     display: flex;
@@ -35,6 +28,7 @@ body {
     display: grid;
     border-radius: 8px;
     overflow: hidden;
+    position: relative;
 
     grid-template-columns: repeat(8, 90px);
     grid-template-rows: repeat(8, 90px);
@@ -228,4 +222,19 @@ body {
     z-index: 3;
 }
 
+.game-end-screen {
+    position: absolute;
+    top:50%;
+    left:50%;
+    transform: translate(-50%, -50%);
+
+    background-color: #a6ffc9;
+
+    border-radius: 8px;
+    width: 270px;
+    height: 190px;
+    z-index: 100;
+
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
          
