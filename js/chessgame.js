@@ -1,6 +1,7 @@
 import { Board } from "./board.js";
 import { Player } from "./player.js";
 import { Move } from "./move.js";
+import { Clock } from "./clock.js";      
 
 
 import { Pawn } from "./pieces/pawn.js";
@@ -188,7 +189,11 @@ export class ChessGame {
 
     switchTurn(){
 
+        this.currentPlayer.clock.stopTimer
+
         this.currentPlayer = this.currentPlayer  === this.black ? this.white : this.black
+
+        this.currentPlayer.clock.startTimer
     }
 
     canSelectPiece(row, col) {
