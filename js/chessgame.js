@@ -101,8 +101,6 @@ export class ChessGame {
         //check for checkmate
         const legalMoves = this.getAllLegalMoves(this, enemyColor);
         const mateStatus = (checkStatus && legalMoves.length == 0)
-        console.log(mateStatus)
-        console.log(legalMoves)
         this.moveHistory.push(new Move(movingPiece, fromRow, fromCol, toRow, toCol, capturedPiece, checkStatus, mateStatus, disambiguation))
 
         this.switchTurn()
@@ -189,11 +187,11 @@ export class ChessGame {
 
     switchTurn(){
 
-        this.currentPlayer.clock.stopTimer
+        this.currentPlayer.clock.stopTimer()
 
         this.currentPlayer = this.currentPlayer  === this.black ? this.white : this.black
 
-        this.currentPlayer.clock.startTimer
+        this.currentPlayer.clock.startTimer()
     }
 
     canSelectPiece(row, col) {
@@ -225,6 +223,7 @@ export class ChessGame {
             return true;
         }
 
+
         if (legalMoves.length !== 0) {
             return false;
         }
@@ -242,6 +241,8 @@ export class ChessGame {
 
             console.log("STALEMATE!");
         }
+
+
 
         return true;
     }       

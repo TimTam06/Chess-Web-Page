@@ -6,6 +6,9 @@ const newGameButton = document.getElementById("new-game-button")
 newGameButton.addEventListener("click", newGame)
 let game = new ChessGame();
 
+let blackClock = document.getElementById("black-clock")
+let whiteClock = document.getElementById("white-clock")
+
 let clickedSquare = null;
 
 
@@ -31,7 +34,11 @@ for (let row = 0; row < 8; row++) {
 
 renderBoard()
 renderMoveHistory()
-// handle clicks
+
+//start updating the clocks
+setInterval(renderClocks, 10)
+
+
 
 function handleSquareClick(event) {
     const squareElement = event.currentTarget;
@@ -153,8 +160,16 @@ function renderMoveHistory() {
 
         moveHistoryElement.appendChild(row)
     }
+    if (game.moveHistory.length > 0) {
+        const moveNumber = Math.ceil(game.moveHistory.length / 2)
+        const moveRows = document.querySelectorAll(".move-row")
+        const latestRow = moveRows[moveNumber - 1]
 
-    moveHistoryElement.scrollTo({top: moveHistoryElement.scrollHeight, behavior: "smooth"})
+        latestRow.scrollIntoView({
+            behavior: "smooth",
+            block: "nearest"
+        })
+    }
 }
 
 function renderTurn(){
@@ -235,4 +250,16 @@ function renderGameEnd(){
 
 function removeGameEnd(){
     document.querySelector(".game-end-screen").remove()
+}
+
+function renderClocks(){
+    const [minBlack, secBlack] = game.black.clock.getTime();
+    const [minWhite, secWhite] = game.white.clock.getTime();
+
+    blackClock.textContent = formatClock(minBlack, secBlack);
+    whiteClock.textContent = formatClock(minWhite, secWhite);
+}
+
+function formatClock(min, sec) {
+    return `${String(min).padStart(2, "0")}:${String(sec).padStart(2, "0")}`;
 }

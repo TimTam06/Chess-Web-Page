@@ -28,6 +28,8 @@ export class Clock {
         if (this.timeRemaining === 0) {
             this.stopTimer();
         }
+
+        console.log(this.getTime())
     }
 
     getTime() {
