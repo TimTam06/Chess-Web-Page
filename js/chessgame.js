@@ -1,6 +1,7 @@
 import { Board } from "./board.js";
 import { Player } from "./player.js";
 import { Move } from "./move.js";
+import { Clock } from "./clock.js";      
 
 
 import { Pawn } from "./pieces/pawn.js";
@@ -46,7 +47,7 @@ export class ChessGame {
         }
 
         //check if move is valid
-        const isLegal = this.getLegalMoves(fromRow, fromCol).some(
+        const isLegal = this.getLegalMoves(fromRow, fromCol, this.currentPlayer.color).some(
             ([row, col]) => row === toRow && col === toCol
         )
 
@@ -70,18 +71,10 @@ export class ChessGame {
         //move the piece
         this.board.movePiece(fromRow, fromCol, toRow, toCol)
         
-        //check for check
-        const enemyColor = this.currentPlayer.color === "white" ? "black" : "white";
-        const checkStatus = this.isInCheck(this, enemyColor)
-        //check for checkmate
-        const legalMoves = this.getAllLegalMoves(this, enemyColor);
-        const mateStatus = checkStatus && legalMoves.length == 0 ? true : false;
-        
-        this.moveHistory.push(new Move(movingPiece, fromRow, fromCol, toRow, toCol, capturedPiece, checkStatus, mateStatus, disambiguation))
         
         //check for promotion
         const isPromotion = movingPiece instanceof Pawn &&((movingPiece.color === "white" && toRow === 0) || (movingPiece.color === "black" && toRow === 7));
-
+        
         //check for castling
         const isCastling = movingPiece instanceof King && Math.abs(toCol - fromCol) === 2;
         
@@ -90,7 +83,7 @@ export class ChessGame {
             const square = this.board.getSquare(toRow, toCol);
             square.piece = new Queen(movingPiece.color);
         }
-
+        
         //If its castling move the rook
         if (isCastling) {
             if (toCol > fromCol) {
@@ -101,7 +94,14 @@ export class ChessGame {
                 this.board.movePiece(fromRow, 0, toRow, 3);
             }
         }
-
+        
+        //check for check
+        const enemyColor = this.currentPlayer.color === "white" ? "black" : "white";
+        const checkStatus = this.isInCheck(this, enemyColor)
+        //check for checkmate
+        const legalMoves = this.getAllLegalMoves(this, enemyColor);
+        const mateStatus = (checkStatus && legalMoves.length == 0)
+        this.moveHistory.push(new Move(movingPiece, fromRow, fromCol, toRow, toCol, capturedPiece, checkStatus, mateStatus, disambiguation))
 
         this.switchTurn()
         
@@ -138,7 +138,7 @@ export class ChessGame {
         }
     }
 
-    getLegalMoves(row, col) {
+    getLegalMoves(row, col, color) {
         const square = this.board.getSquare(row, col)
 
         if (square?.piece === null) {
@@ -150,17 +150,17 @@ export class ChessGame {
         const possibleMoves = piece.getPossibleMoves(this, row, col)
         
 
-        return this.filterLegalMoves(row, col, possibleMoves)
+        return this.filterLegalMoves(row, col, possibleMoves, color)
     }   
 
-    filterLegalMoves(row, col, possibleMoves) {
+    filterLegalMoves(row, col, possibleMoves, color) {
         
         const legalMoves = possibleMoves.filter(([newRow, newCol]) => {
             const dummyGame = this.copy()
 
             dummyGame.board.movePiece(row, col, newRow, newCol)
 
-            return !this.isInCheck(dummyGame, this.currentPlayer.color)
+            return !this.isInCheck(dummyGame, color)
         })
         return legalMoves
     }
@@ -187,11 +187,15 @@ export class ChessGame {
 
     switchTurn(){
 
+        this.currentPlayer.clock.stopTimer()
+
         this.currentPlayer = this.currentPlayer  === this.black ? this.white : this.black
-        console.log(this.currentPlayer)
+
+        this.currentPlayer.clock.startTimer()
     }
 
     canSelectPiece(row, col) {
+        if(this.gameOver){return false}
         const piece = this.board.getSquare(row, col).piece
 
         return piece !== null && piece.color === this.currentPlayer.color
@@ -200,10 +204,11 @@ export class ChessGame {
     checkGameEnd() {
         const color = this.currentPlayer.color;
         const legalMoves = this.getAllLegalMoves(this, color);
+        console.log("in check game end", legalMoves)
 
         if (this.checkForRepetition()){
             this.result = "threefold repetition";
-            this.winner = null;
+            this.winner = "draw";
             this.gameOver = true;
             console.log("THREEFOLD REPETITION");
             return true;
@@ -212,12 +217,13 @@ export class ChessGame {
         // Insufficient material
         if (this.isInsufficientMaterial()) {
             this.result = "insufficient material";
-            this.winner = null;
+            this.winner = "draw";
             this.gameOver = true;
 
             console.log("DRAW - INSUFFICIENT MATERIAL");
             return true;
         }
+
 
         if (legalMoves.length !== 0) {
             return false;
@@ -232,10 +238,12 @@ export class ChessGame {
             console.log(`CHECKMATE! ${this.winner} wins!`);
         } else {
             this.result = "stalemate";
-            this.winner = null;
+            this.winner = "draw";
 
             console.log("STALEMATE!");
         }
+
+
 
         return true;
     }       
@@ -258,6 +266,7 @@ export class ChessGame {
     }
 
     getAllLegalMoves(game, color) {
+        console.log(game)
         const allLegalMoves = [];
         const chessBoard = game.board;
         for (let row = 0; row < 8; row++) {
@@ -268,7 +277,7 @@ export class ChessGame {
 
                     const possibleMoves = square.piece.getPossibleMoves(game, row, col);
 
-                    const legalMoves = this.filterLegalMoves(row, col, possibleMoves);
+                    const legalMoves = this.filterLegalMoves(row, col, possibleMoves, color);
 
                     allLegalMoves.push(...legalMoves);
                 }
@@ -528,7 +537,7 @@ export class ChessGame {
             return true;
         }
 
-        // Any pawn, rook or queen means there is potentially enough material
+        
         if (
             nonKings.some(({ piece }) =>
                 piece instanceof Pawn ||
@@ -553,13 +562,7 @@ export class ChessGame {
             nonKings.length === 2 &&
             nonKings.every(({ piece }) => piece instanceof Bishop)
         ) {
-            const bishop1 = nonKings[0];
-            const bishop2 = nonKings[1];
-
-            const color1 = (bishop1.row + bishop1.col) % 2;
-            const color2 = (bishop2.row + bishop2.col) % 2;
-
-            return color1 === color2;
+            return true;
         }
 
         return false;
@@ -574,7 +577,7 @@ export class ChessGame {
                 const otherPiece = game.board.getSquare(row, col).piece;
                 
                 if (otherPiece !== null && otherPiece.type === piece.type && otherPiece.color === piece.color && (row != fromRow || col != fromCol)){
-                    const legalMovesOfOtherPiece = this.getLegalMoves(row, col);
+                    const legalMovesOfOtherPiece = this.getLegalMoves(row, col, otherPiece.color);
                     
                     const canReach = legalMovesOfOtherPiece.some(([r, c]) => r === toRow && c === toCol)
 
@@ -606,5 +609,14 @@ export class ChessGame {
 
         return fromFile + fromRank
 
+    }
+
+    checkTimeOver(){
+        if (this.white.clock.timeRemaining == 0 || this.black.clock.timeRemaining == 0){
+            this.result = "timeout";
+            this.winner = this.white.clock.timeRemaining === 0 ? "black" : "white";
+            this.gameOver = true;
+            console.log("TIMEOUT");
+        }
     }
 }
