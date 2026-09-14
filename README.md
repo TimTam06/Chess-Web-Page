@@ -110,17 +110,6 @@ La génération de la notation prend notamment en compte :
 
 Aucune bibliothèque ou framework externe n'est nécessaire au fonctionnement du jeu.
 
-## Structure du projet
-
-```text
-/
-├── index.html
-├── styles.css
-├── js/
-├── images/
-└── sounds/
-```
-
 ## Lancement
 
 1. Cloner le dépôt.
