@@ -10,6 +10,7 @@ export class Clock {
 
     startTimer() {
         this.startTime = Date.now();
+        this.startRemaining = this.timeRemaining
 
         this.timer = setInterval(() => {this.remove1step()}, 250);
     }
@@ -23,13 +24,11 @@ export class Clock {
     remove1step() {
         const elapsed = Date.now() - this.startTime;
 
-        this.timeRemaining = Math.max(0, this.duration - elapsed);
+        this.timeRemaining = Math.max(0, this.startRemaining - elapsed);
 
         if (this.timeRemaining === 0) {
             this.stopTimer();
         }
-
-        console.log(this.getTime())
     }
 
     getTime() {

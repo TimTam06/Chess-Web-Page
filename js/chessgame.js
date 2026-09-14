@@ -195,6 +195,7 @@ export class ChessGame {
     }
 
     canSelectPiece(row, col) {
+        if(this.gameOver){return false}
         const piece = this.board.getSquare(row, col).piece
 
         return piece !== null && piece.color === this.currentPlayer.color
@@ -608,5 +609,14 @@ export class ChessGame {
 
         return fromFile + fromRank
 
+    }
+
+    checkTimeOver(){
+        if (this.white.clock.timeRemaining == 0 || this.black.clock.timeRemaining == 0){
+            this.result = "timeout";
+            this.winner = this.white.clock.timeRemaining === 0 ? "black" : "white";
+            this.gameOver = true;
+            console.log("TIMEOUT");
+        }
     }
 }

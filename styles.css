@@ -56,6 +56,12 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
+
+    transition: filter 0.12s ease;
+}
+
+.square:not(.selected):hover {
+    filter: brightness(1.2);
 }
 
 .piece {
@@ -142,7 +148,7 @@ body {
 #new-game-button {
     background-color: #181818;
     font-size: x-large;
-    color: white;
+    color: #b8ffda;
     border: 0;
     cursor: pointer;
 
@@ -153,6 +159,11 @@ body {
     margin-top: 20px;
     align-self: center;
     flex-shrink: 0;
+}
+
+#new-game-button:hover {
+    background-color: #32d583;
+    color: #181818;
 }
 
 .light {
@@ -290,14 +301,28 @@ p {
 .clock {
     width: 120px;
     height: 60px;
+    align-self: flex-end;
 
     display: flex;
     justify-content: center;
     align-items: center;
 
-    background-color: #222;
-    color: white;
+    
+    background-color: #202b27;
+    color: #b8ffda;
+
     border-radius: 8px;
+    
 
     font-size: clamp(18px, 2vw, 30px);
+}
+
+#white-clock {
+    background-color: #e8e8e8;
+    color: #181818;
+}
+
+#black-clock {
+    background-color: #101010;
+    color: #eeeeee;
 }

@@ -36,7 +36,7 @@ renderBoard()
 renderMoveHistory()
 
 //start updating the clocks
-setInterval(renderClocks, 10)
+let updateClocks = setInterval(renderClocks, 10)
 
 
 
@@ -258,6 +258,12 @@ function renderClocks(){
 
     blackClock.textContent = formatClock(minBlack, secBlack);
     whiteClock.textContent = formatClock(minWhite, secWhite);
+
+     if (game.checkTimeOver()){
+        renderGameEnd()
+        clearInterval(updateClocks)
+
+     }
 }
 
 function formatClock(min, sec) {
